@@ -1,0 +1,20 @@
+{
+  "name": "SalahTime",
+  "short_name": "SalahTime",
+  "description": "Accurate Salah Times with auto-location and weather.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#4a0d17",
+  "theme_color": "#4a0d17",
+
+  "icons": [
+    {
+      "src": "/kaaba512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

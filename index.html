@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SalahTime</title>
+    <meta name="theme-color" content="#4a0d17">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100dvh; width: 100vw; overflow: hidden; background-color: #4a0d17; }
+        
+        body {
+            font-family: 'Amiri', serif;
+            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);
+            color: #fff; display: flex; justify-content: center; align-items: center; padding: 1vh 1vw;
+        }
+
+        .container {
+            width: 100%; height: 100%; max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            grid-template-rows: auto auto 1fr auto;
+            gap: 0.5vh 1.5vw; align-items: center;
+        }
+
+        .header { text-align: center; grid-column: 1 / -1; }
+        .city-name { font-size: clamp(2rem, 4vw, 4rem); font-weight: 700; color: #eebfbf; }
+        .city-location { font-size: clamp(1rem, 2vw, 2rem); color: #d3a4a4; }
+        .hijri-date { font-size: clamp(1rem, 2vw, 2rem); color: #f5d5d5; }
+        .gregorian-date { font-size: clamp(0.9rem, 1.5vw, 1.5rem); color: #d3a4a4; font-family: sans-serif; }
+
+        .weather-info {
+            position: absolute; top: 1.5vh; right: 1.5vw;
+            font-size: clamp(1rem, 1.5vw, 1.5rem); background: rgba(255,255,255,0.1); padding: 0.5vh 1vw; border-radius: 30px;
+        }
+
+        .clock { grid-column: 1 / -1; font-size: clamp(3.5rem, 12vw, 9rem); font-weight: 700; text-align: center; color: #d6f0ff; line-height: 1; }
+
+        .next-prayer-label {
+            grid-column: 1 / -1; text-align: center; font-size: clamp(1.2rem, 2.5vw, 2.5rem);
+            color: #fff; padding: 0.3vh 0;
+            border-top: 1px solid rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .left-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 1vh; }
+        .countdown-circle {
+            width: clamp(100px, 18vw, 200px); height: clamp(100px, 18vw, 200px);
+            border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.3);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .countdown-time { font-size: clamp(2rem, 4vw, 4rem); font-weight: 700; color: #d6f0ff; }
+        .countdown-label { font-size: clamp(0.9rem, 1.5vw, 1.8rem); color: #eebfbf; text-align: center; }
+        .mosque-icon-container { font-size: clamp(3rem, 5vw, 5rem); opacity: 0.9; }
+
+        .prayer-list { display: flex; flex-direction: column; gap: 0.6vh; height: 100%; justify-content: center; }
+        .prayer-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.08); padding: 0.5vh 1.5vw; border-radius: 40px;
+            font-size: clamp(1rem, 2.2vw, 2.4rem);
+        }
+        .prayer-row.next { background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.3); }
+        .prayer-name { min-width: 50px; text-align: right; font-weight: 700; }
+        .prayer-times { display: flex; gap: 2.5vw; }
+        .time-box { text-align: center; min-width: 45px; }
+        .time-label { font-size: clamp(0.8rem, 1.5vw, 1.6rem); color: #d3a4a4; display: block; }
+        .time-value { font-weight: 700; font-size: clamp(1rem, 2.2vw, 2.4rem); color: #f5d5d5; }
+
+        @media (max-width: 800px) {
+            .container { 
+                grid-template-columns: 1fr; 
+                grid-template-rows: auto auto auto auto 1fr; 
+                gap: 0.5vh; padding: 1vh 1vw; 
+            }
+            .city-name { font-size: clamp(1.8rem, 5vw, 2.5rem); }
+            .city-location, .hijri-date, .gregorian-date { font-size: clamp(0.9rem, 2.5vw, 1.2rem); }
+            .clock { font-size: clamp(3rem, 10vw, 4.5rem); margin: 1vh 0; }
+            .next-prayer-label { font-size: clamp(1.2rem, 3vw, 1.8rem); padding: 0.5vh 0; }
+            
+            .left-panel { 
+                grid-row: 5; flex-direction: row; justify-content: center; 
+                height: auto; gap: 5vw; padding-top: 1vh; 
+            }
+            .countdown-circle { width: clamp(80px, 20vw, 120px); height: clamp(80px, 20vw, 120px); }
+            .countdown-time { font-size: clamp(1.5rem, 4vw, 2.5rem); }
+            .countdown-label { font-size: clamp(0.8rem, 2vw, 1.2rem); }
+            .mosque-icon-container { font-size: clamp(2.5rem, 6vw, 4rem); }
+
+            .prayer-list { grid-row: 4; gap: 0.4vh; justify-content: flex-start; }
+            
+            /* This Line is used to give padding for Azan and Aqamat Timings from Border */
+            .prayer-row { padding: 0.6vh 6vw; border-radius: 20px; font-size: clamp(1rem, 2.5vw, 1.4rem); }
+            
+            .prayer-name { min-width: 40px; }
+            .prayer-times { gap: 6vw; }
+            .time-box { min-width: 35px; }
+            .time-label { font-size: clamp(0.8rem, 2vw, 1rem); }
+            .time-value { font-size: clamp(1rem, 2.5vw, 1.4rem); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="weather-info" id="weatherInfo">🌡️ --°C</div>
+        <div class="header">
+            <div class="city-name">Masjid Al-Habib</div>
+            <div class="city-location" id="cityLocation">📍 Detecting location...</div>
+            <div class="hijri-date" id="hijriDate">-- محرم ١٤٤٨ هـ</div>
+            <div class="gregorian-date" id="gregDate">-- --, ----</div>
+        </div>
+        <div class="clock" id="digitalClock">--:--:--</div>
+        <div class="next-prayer-label" id="nextPrayerLabel">-- الوقت المتبقي للصلاة --</div>
+        <div class="left-panel">
+            <div class="countdown-circle">
+                <div class="countdown-time" id="countdownTime">--:--</div>
+                <div class="countdown-label" id="countdownName">الصلاة القادمة</div>
+            </div>
+            <div class="mosque-icon-container">🕌</div>
+        </div>
+        <div class="prayer-list" id="prayerList"></div>
+    </div>
+
+    <script>
+        let config = { 
+            city: 'Jeddah', country: 'Saudi Arabia',
+            iqamahOffsets: { fajr: 20, sunrise: 0, dhuhr: 10, asr: 15, maghrib: 10, isha: 15 },
+            method: 4 // 4 = Umm Al-Qura (Saudi)
+        };
+
+        const prayerNames = { Fajr: 'الفجر', Sunrise: 'الشروق', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+        const prayerOrder = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+        const methodAngles = { MWL: { Fajr: 18, Isha: 17 }, ISNA: { Fajr: 15, Isha: 15 }, Egypt: { Fajr: 19.5, Isha: 17.5 }, UmmAlQura: { Fajr: 18.5, Isha: '90 min' } };
+
+        function d2r(d) { return d * Math.PI / 180; }
+        function r2d(r) { return r * 180 / Math.PI; }
+        function sin(d) { return Math.sin(d2r(d)); }
+        function cos(d) { return Math.cos(d2r(d)); }
+        function tan(d) { return Math.tan(d2r(d)); }
+        function arcsin(x) { return r2d(Math.asin(x)); }
+        function arccos(x) { return r2d(Math.acos(x)); }
+        function arctan(x) { return r2d(Math.atan(x)); }
+        function calculateOfflineTimes(date, lat, lng, methodName) {
+            let d = new Date(date), day = d.getDate(), month = d.getMonth() + 1, year = d.getFullYear();
+            let jd = Math.floor((1461 * (year + 4800 + (month - 14) / 12)) / 4 + (367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 - (3 * ((year + 4900 + (month - 14) / 12) / 100)) / 4 + day - 32075) - 0.5;
+            let T = (jd - 2451545.0) / 36525;
+            let L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+            let M = 357.5291 + 35999.05029 * T - 0.0001537 * T * T;
+            let C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(d2r(M)) + (0.019993 - 0.000101 * T) * Math.sin(d2r(2 * M)) + 0.000289 * Math.sin(d2r(3 * M));
+            let sunLon = L0 + C, S = 280.46646 + 36000.76983 * T + 0.0003032 * T * T + C;
+            let e = 23.439291 - 0.0130042 * T;
+            let dec = arcsin(sin(e) * sin(d2r(sunLon)));
+            let noon = 720 - 4 * lng - 4 * 0.005775 * (jd - 2451545.0) - (S - sunLon) / 0.25;
+            let fajrAngle = methodAngles[methodName].Fajr, ishaAngle = methodAngles[methodName].Isha;
+            let dhuhr = noon + 0.5 / 60;
+            let sRise = noon - (1/15) * arccos(-tan(d2r(lat)) * tan(d2r(dec)) - sin(d2r(0.833)) / (cos(d2r(lat)) * cos(d2r(dec))));
+            let sSet = noon + (1/15) * arccos(-tan(d2r(lat)) * tan(d2r(dec)) - sin(d2r(0.833)) / (cos(d2r(lat)) * cos(d2r(dec))));
+            let asrFactor = 1; // Shafi
+            let asrAlt = arctan(asrFactor + tan(d2r(Math.abs(lat - dec))));
+            let asr = noon + (1/15) * arccos((sin(d2r(asrAlt)) - sin(d2r(lat)) * sin(d2r(dec))) / (cos(d2r(lat)) * cos(d2r(dec))));
+            if (isNaN(asr)) asr = sSet - 0.5/60;
+            let fajr = noon - (1/15) * arccos((sin(d2r(-fajrAngle)) - sin(d2r(lat)) * sin(d2r(dec))) / (cos(d2r(lat)) * cos(d2r(dec))));
+            let isha = noon + (1/15) * arccos((sin(d2r(-ishaAngle)) - sin(d2r(lat)) * sin(d2r(dec))) / (cos(d2r(lat)) * cos(d2r(dec))));
+            if (methodName === 'UmmAlQura') isha = sSet + 90 / 60;
+            function formatTime(h) {
+                h = h + (lng / 15) - (d.getTimezoneOffset() / 60);
+                let hh = Math.floor(h) % 24, mm = Math.floor((h - Math.floor(h)) * 60);
+                return { display: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`, hour: hh, minute: mm };
+            }
+            return { Fajr: formatTime(fajr), Sunrise: formatTime(sRise), Dhuhr: formatTime(dhuhr), Asr: formatTime(asr), Maghrib: formatTime(sSet), Isha: formatTime(isha) };
+        }
+
+        // Global variables to hold the fetched times for the counter
+        let savedTimes = null;
+        let savedNow = null;
+
+        function updateDisplay(times, now) {
+            savedTimes = times;
+            savedNow = now;
+
+            // Update static UI elements
+            document.getElementById('gregDate').innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('hijriDate').innerText = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).format(now);
+
+            let nextPrayerKey = null, nextPrayerTime = null, html = '';
+            prayerOrder.forEach(key => {
+                let t = times[key];
+                let nowMins = now.getHours() * 60 + now.getMinutes();
+                let prayerMins = t.hour * 60 + t.minute;
+                let iqamah = new Date(now); iqamah.setHours(t.hour, t.minute + (config.iqamahOffsets[key.toLowerCase()]||0), 0, 0);
+                let isNext = false;
+                if (prayerMins > nowMins) { isNext = true; if(!nextPrayerKey) { nextPrayerKey = key; nextPrayerTime = new Date(now); nextPrayerTime.setHours(t.hour, t.minute, 0, 0); } }
+                html += `<div class="prayer-row ${isNext?'next':''}">
+                    <div class="prayer-name">${prayerNames[key]}</div>
+                    <div class="prayer-times">
+                        <div class="time-box"><span class="time-label">الأذان</span><span class="time-value">${t.display}</span></div>
+                        <div class="time-box"><span class="time-label">الإقامة</span><span class="time-value">${iqamah.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}</span></div>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('prayerList').innerHTML = html;
+
+            // Save the next prayer details for the ticking counter
+            if (nextPrayerKey) {
+                document.getElementById('nextPrayerLabel').innerText = `باقي على صلاة ${prayerNames[nextPrayerKey]}`;
+                document.getElementById('countdownName').innerText = `صلاة ${prayerNames[nextPrayerKey]}`;
+                window.nextPrayerTime = nextPrayerTime;
+            } else {
+                // Handle end of day
+                let tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1);
+                let fajrT = calculateOfflineTimes(tomorrow, 21.4858, 39.1925, 'UmmAlQura').Fajr;
+                let fajrTime = new Date(tomorrow); fajrTime.setHours(fajrT.hour, fajrT.minute, 0, 0);
+                window.nextPrayerTime = fajrTime;
+                document.getElementById('nextPrayerLabel').innerText = `باقي على صلاة الفجر (غداً)`;
+                document.getElementById('countdownName').innerText = `صلاة الفجر (غداً)`;
+            }
+        }
+
+        async function fetchData() {
+            try {
+                const ipRes = await fetch('https://ipinfo.io/json');
+                const ipData = await ipRes.json();
+                let lat = 21.4858, lng = 39.1925; // Default Jeddah
+                let cityName = 'Jeddah';
+                let countryName = 'Saudi Arabia';
+                
+                if (ipData.loc) {
+                    const coords = ipData.loc.split(',');
+                    lat = parseFloat(coords[0]); lng = parseFloat(coords[1]);
+                    cityName = ipData.city || 'Jeddah';
+                    countryName = ipData.country || 'SA';
+                    document.getElementById('cityLocation').innerText = `📍 ${cityName}, ${countryName}`;
+                }
+
+                // 2. Open-Meteo Weather
+                try {
+                    const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+                    const wData = await wRes.json();
+                    if (wData.current_weather && wData.current_weather.temperature !== undefined) {
+                        const temp = Math.round(wData.current_weather.temperature);
+                        document.getElementById('weatherInfo').innerText = `🌡️ ${temp}°C`;
+                    } else {
+                        document.getElementById('weatherInfo').innerText = `🌡️ 27°C`;
+                    }
+                } catch {
+                    document.getElementById('weatherInfo').innerText = `🌡️ 27°C`;
+                }
+
+                const now = new Date();
+
+                // 3. Aladhan API Timings
+                const dateStr = `${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`;
+                const timeRes = await fetch(`https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${encodeURIComponent(cityName)}&country=${encodeURIComponent(countryName)}&method=4&school=1`);
+                const timeData = await timeRes.json();
+
+                if (timeData.code === 200) {
+                    const timings = timeData.data.timings;
+                    let apiTimes = {};
+                    prayerOrder.forEach(key => {
+                        const timeStr = timings[key];
+                        const [h, m] = timeStr.split(':').map(Number);
+                        apiTimes[key] = { hour: h, minute: m, display: timeStr };
+                    });
+
+                    updateDisplay(apiTimes, now);
+
+                    // Refresh times every 60 seconds
+                    setInterval(() => { 
+                        const n = new Date();
+                        const dStr = `${n.getDate()}-${n.getMonth()+1}-${n.getFullYear()}`;
+                        fetch(`https://api.aladhan.com/v1/timingsByCity/${dStr}?city=${encodeURIComponent(cityName)}&country=${encodeURIComponent(countryName)}&method=4&school=1`)
+                        .then(r=>r.json()).then(d=>{
+                            if(d.code===200){ let t = {}; prayerOrder.forEach(k=>{ const s=d.data.timings[k]; const [h,m]=s.split(':').map(Number); t[k]={hour:h,minute:m,display:s}; }); updateDisplay(t, n); }
+                        }).catch(()=>{});
+                    }, 60000);
+
+                } else {
+                    throw new Error("API Failed");
+                }
+
+            } catch (error) {
+                console.warn("API unavailable. Using offline math engine.");
+                document.getElementById('cityLocation').innerText = `📍 Jeddah, SA`;
+                const now = new Date();
+                const times = calculateOfflineTimes(now, 21.4858, 39.1925, 'UmmAlQura');
+                updateDisplay(times, now);
+            }
+        }
+
+        // =========================================================
+        // REAL-TIME TICKER (Clock + Countdown)
+        // Runs every 1 second
+        // =========================================================
+        function startTickers() {
+            setInterval(() => {
+                const now = new Date();
+                
+                // Update Digital Clock
+                document.getElementById('digitalClock').innerText = now.toLocaleTimeString('en-GB');
+
+                // Update Countdown
+                if (window.nextPrayerTime) {
+                    let diff = window.nextPrayerTime - now;
+                    if (diff > 0) {
+                        let minutes = Math.floor(diff / 60000);
+                        let seconds = Math.floor((diff % 60000) / 1000);
+                        document.getElementById('countdownTime').innerText = `${minutes}:${String(seconds).padStart(2, '0')}`;
+                    } else {
+                        // If the prayer time just passed, force a full refresh to find the next one
+                        if (savedTimes) {
+                            updateDisplay(savedTimes, now);
+                        }
+                    }
+                }
+            }, 1000);
+        }
+
+        // Start the app
+        fetchData();
+        startTickers();
+    </script>
+
+    <script>
+       if ("serviceWorker" in navigator) {
+
+window.addEventListener("load",()=>{
+
+navigator.serviceWorker.register("/sw.js")
+.then(()=>{
+console.log("PWA Service Worker Registered");
+})
+.catch(err=>{
+console.log("SW Error:",err);
+});
+
+});
+       }
+    </script>
+
+</body>
+</html>
